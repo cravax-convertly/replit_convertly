@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page Not Found - Cravax Convertly</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-800 min-h-screen flex flex-col">
+  <header class="bg-white shadow p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/index.html" class="text-xl font-bold text-blue-600">Cravax Convertly</a>
+      <nav class="space-x-4 hidden md:block">
+        <a href="/upload.html" class="text-gray-700 hover:text-blue-600">Upload</a>
+        <a href="/pricing.html" class="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="/account.html" id="account-link" class="text-gray-700 hover:text-blue-600 hidden">Account</a>
+        <a href="/login.html" id="login-link" class="text-gray-700 hover:text-blue-600">Login</a>
+        <a href="/signup.html" id="signup-link" class="text-gray-700 hover:text-blue-600">Sign Up</a>
+        <button id="logout-btn" class="text-red-600 hover:text-red-700 font-medium hidden">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="flex-1 flex flex-col justify-center items-center text-center px-4">
+  <h1 class="text-6xl font-bold mb-4">404</h1>
+  <p class="text-xl mb-6">Sorry, the page you’re looking for doesn’t exist.</p>
+  <a href="/index.html" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+    Go to Homepage
+  </a>
+  </div>
+
+  <footer class="mt-12 text-center text-sm text-gray-500 py-6 border-t">
+    &copy; 2025 Cravax Convertly. All rights reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase?.createClient(
+      "https://YOUR_SUPABASE_URL",
+      "YOUR_SUPABASE_PUBLIC_ANON_KEY"
+    );
+
+    document.getElementById("logout-btn")?.addEventListener("click", async () => {
+      if (confirm("Are you sure you want to logout?")) {
+        await supabase.auth.signOut();
+        alert("You have been logged out successfully!");
+        window.location.href = "/login.html";
+      }
+    });
+    
+    // Update navigation based on authentication status
+    async function updateNavigation() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accountLink = document.getElementById("account-link");
+      const loginLink = document.getElementById("login-link");
+      const logoutBtn = document.getElementById("logout-btn");
+      const signupLink = document.getElementById("signup-link");
+      
+      if (session) {
+        // User is logged in - show Account and Logout
+        accountLink?.classList.remove("hidden");
+        logoutBtn?.classList.remove("hidden");
+        loginLink?.classList.add("hidden");
+        signupLink?.classList.add("hidden");
+      } else {
+        // User is not logged in - show Login and Sign Up
+        accountLink?.classList.add("hidden");
+        logoutBtn?.classList.add("hidden");
+        loginLink?.classList.remove("hidden");
+        signupLink?.classList.remove("hidden");
+      }
+    }
+    
+    updateNavigation();
+  </script>
+</body>
+</html>

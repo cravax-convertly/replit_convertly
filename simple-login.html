@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cravax Convertly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/simple-auth.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Login to Cravax Convertly</h1>
+            <p class="text-gray-600 mt-2">Enter any email and password to continue</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="email" required 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="Enter any email">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" name="password" required 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="Enter any password">
+            </div>
+
+            <div id="error-message" class="hidden text-red-600 text-sm"></div>
+
+            <button type="submit" 
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Login
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="/" class="text-blue-600 hover:text-blue-700">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-message');
+            
+            // Hide previous errors
+            errorDiv.classList.add('hidden');
+            
+            try {
+                // Try Supabase authentication first
+                if (typeof supabase !== 'undefined') {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (error) {
+                        // Show specific error messages
+                        if (error.message.includes('Invalid login credentials')) {
+                            errorDiv.textContent = 'Invalid email or password. Please check your credentials and try again.';
+                        } else if (error.message.includes('Email not confirmed')) {
+                            errorDiv.textContent = 'Please check your email and confirm your account before logging in.';
+                        } else if (error.message.includes('Too many requests')) {
+                            errorDiv.textContent = 'Too many login attempts. Please wait a moment and try again.';
+                        } else {
+                            errorDiv.textContent = error.message || 'Login failed. Please try again.';
+                        }
+                        errorDiv.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    if (data.user) {
+                        // Successful login - redirect
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const returnTo = urlParams.get('returnTo') || '/upload.html';
+                        window.location.href = returnTo;
+                        return;
+                    }
+                }
+                
+                // Fallback: Simple auth for demo purposes
+                const result = await Auth.login(email, password);
+                
+                if (result.success) {
+                    // Login successful - redirect to return URL or home
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnTo = urlParams.get('returnTo') || '/upload.html';
+                    window.location.href = returnTo;
+                } else {
+                    errorDiv.textContent = result.error || 'Login failed. Please check your credentials.';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Login failed. Please try again.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+        
+        // Check if already logged in
+        const checkAuth = async () => {
+            // Try Supabase first
+            if (typeof supabase !== 'undefined') {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnTo = urlParams.get('returnTo') || '/upload.html';
+                    window.location.href = returnTo;
+                    return;
+                }
+            }
+            
+            // Fallback to Auth
+            if (Auth.isLoggedIn()) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const returnTo = urlParams.get('returnTo') || '/upload.html';
+                window.location.href = returnTo;
+            }
+        };
+        
+        checkAuth();
+    </script>
+    
+    <!-- Supabase for authentication -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase client
+        const supabase = window.supabase?.createClient(
+            "https://YOUR_SUPABASE_URL",
+            "YOUR_SUPABASE_PUBLIC_ANON_KEY"
+        );
+    </script>
+</body>
+</html>

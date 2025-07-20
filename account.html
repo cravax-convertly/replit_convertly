@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Account - Cravax Convertly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen">
+
+  <header class="bg-white shadow p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/index.html" class="text-xl font-bold text-blue-600">Cravax Convertly</a>
+      <nav class="space-x-4">
+        <a href="/upload.html" class="text-gray-700 hover:text-blue-600">Upload</a>
+        <a href="/pricing.html" class="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="/account.html" class="text-gray-700 hover:text-blue-600">Account</a>
+        <button id="logout-btn" class="text-red-600 hover:underline">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-4">Account Information</h1>
+    <div class="bg-white p-6 rounded shadow">
+      <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
+      <p><strong>Plan:</strong> <span id="user-plan">Loading...</span></p>
+      <p><strong>License Key:</strong> <span id="user-license">Loading...</span></p>
+    </div>
+  </main>
+
+  <script src="/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      document.getElementById("logout-btn").addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/login.html";
+      });
+
+      const user = session.user;
+      document.getElementById("user-email").textContent = user.email;
+
+      // Fetch plan and license from Supabase if stored
+      const { data, error } = await supabase
+        .from("users")
+        .select("isPremium, license")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        document.getElementById("user-plan").textContent = "Error loading";
+        document.getElementById("user-license").textContent = "Error loading";
+      } else {
+        document.getElementById("user-plan").textContent = data.isPremium ? "Premium" : "Free";
+        document.getElementById("user-license").textContent = data.license || "None";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing - Cravax Convertly</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <header class="bg-white shadow p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/index.html" class="text-xl font-bold text-blue-600">Cravax Convertly</a>
+      <nav class="space-x-4 hidden md:block">
+        <a href="/upload.html" class="text-gray-700 hover:text-blue-600">Upload</a>
+        <a href="/pricing.html" class="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="/account.html" id="account-link" class="text-gray-700 hover:text-blue-600 hidden">Account</a>
+        <a href="/login.html" id="login-link" class="text-gray-700 hover:text-blue-600">Login</a>
+        <a href="/signup.html" id="signup-link" class="text-gray-700 hover:text-blue-600">Sign Up</a>
+        <button id="logout-btn" class="text-red-600 hover:text-red-700 font-medium hidden">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="max-w-4xl mx-auto py-16 px-4 text-center">
+    <h1 class="text-4xl font-bold mb-4">Choose Your Plan</h1>
+    <p class="text-gray-600 mb-12">Start for free. Upgrade anytime for unlimited conversions.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-2">Free Plan</h2>
+        <p class="text-gray-600 mb-4">Perfect for occasional use</p>
+        <ul class="text-left text-sm text-gray-700 mb-6">
+          <li>✅ 1 conversion every 24h</li>
+          <li>✅ Secure file processing</li>
+          <li>❌ No priority support</li>
+        </ul>
+        <button class="w-full bg-gray-300 text-gray-800 py-2 rounded cursor-default" disabled>Current Plan</button>
+      </div>
+
+      <div class="bg-white shadow-lg border-2 border-blue-600 p-6">
+        <h2 class="text-2xl font-semibold mb-2 text-blue-600">Premium Plan</h2>
+        <p class="text-gray-600 mb-4">For professionals & power users</p>
+        <ul class="text-left text-sm text-gray-700 mb-6">
+          <li>✅ Unlimited conversions</li>
+          <li>✅ Priority processing</li>
+          <li>✅ Premium email support</li>
+        </ul>
+        <button id="upgrade-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
+          Upgrade for €3.99/month
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-12 text-center text-sm text-gray-500 py-6 border-t">
+    &copy; 2025 Cravax Convertly. All rights reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase?.createClient(
+      "https://YOUR_SUPABASE_URL",
+      "YOUR_SUPABASE_PUBLIC_ANON_KEY"
+    );
+
+    document.getElementById("logout-btn")?.addEventListener("click", async () => {
+      if (confirm("Are you sure you want to logout?")) {
+        await supabase.auth.signOut();
+        alert("You have been logged out successfully!");
+        window.location.href = "/login.html";
+      }
+    });
+    
+    // Update navigation based on authentication status
+    async function updateNavigation() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accountLink = document.getElementById("account-link");
+      const loginLink = document.getElementById("login-link");
+      const logoutBtn = document.getElementById("logout-btn");
+      
+      if (session) {
+        // User is logged in - show Account and Logout
+        accountLink?.classList.remove("hidden");
+        logoutBtn?.classList.remove("hidden");
+        loginLink?.classList.add("hidden");
+      } else {
+        // User is not logged in - show Login only
+        accountLink?.classList.add("hidden");
+        logoutBtn?.classList.add("hidden");
+        loginLink?.classList.remove("hidden");
+      }
+    }
+    
+    // Initialize navigation on page load
+    updateNavigation();
+    
+    // Handle Stripe checkout
+    document.getElementById("upgrade-btn")?.addEventListener("click", async () => {
+      try {
+        const response = await fetch("/api/stripe/checkout");
+        const data = await response.json();
+        
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert("Error creating checkout session. Please try again.");
+        }
+      } catch (error) {
+        alert("Network error. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

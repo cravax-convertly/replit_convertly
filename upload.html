@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload - Cravax Convertly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen">
+
+  <header class="bg-white shadow p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/index.html" class="text-xl font-bold text-blue-600">Cravax Convertly</a>
+      <nav class="space-x-4">
+        <a href="/upload.html" class="text-gray-700 hover:text-blue-600">Upload</a>
+        <a href="/pricing.html" class="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="/account.html" class="text-gray-700 hover:text-blue-600">Account</a>
+        <button id="logout-btn" class="text-red-600 hover:underline">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex flex-col items-center justify-center p-6">
+    <h1 class="text-3xl font-bold mb-4">Convert Your PDF</h1>
+    <form id="upload-form" class="bg-white shadow-md p-6 rounded space-y-4 w-full max-w-md">
+      <input type="file" id="file" accept=".pdf" required class="w-full border p-2 rounded" />
+      <select id="format" required class="w-full border p-2 rounded">
+        <option value="">Choose output format</option>
+        <option value="docx">Word (.docx)</option>
+        <option value="xlsx">Excel (.xlsx)</option>
+        <option value="pptx">PowerPoint (.pptx)</option>
+      </select>
+      <button type="submit" class="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">Convert</button>
+      <p id="upload-error" class="text-red-600 text-sm"></p>
+    </form>
+  </main>
+
+  <script src="/auth.js"></script>
+  <script src="/upload.js"></script>
+</body>
+</html>

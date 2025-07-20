@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upgrade Success - Cravax Convertly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen">
+
+  <header class="bg-white shadow p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/index.html" class="text-xl font-bold text-blue-600">Cravax Convertly</a>
+      <nav class="space-x-4">
+        <a href="/upload.html" class="text-gray-700 hover:text-blue-600">Upload</a>
+        <a href="/pricing.html" class="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="/account.html" class="text-gray-700 hover:text-blue-600">Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto px-4 py-10 text-center">
+    <h1 class="text-3xl font-bold mb-4 text-green-700">You're now Premium!</h1>
+    <p class="mb-6 text-lg">Your license key is shown below. We've also sent it to your email if applicable.</p>
+
+    <div class="bg-white shadow p-6 rounded border border-green-300">
+      <p class="text-sm text-gray-500 mb-2">License Key:</p>
+      <p id="license-key" class="font-mono text-lg font-semibold text-blue-600 break-words">Loading...</p>
+    </div>
+
+    <a href="/upload.html" class="inline-block mt-6 text-white bg-blue-600 px-6 py-2 rounded hover:bg-blue-700">
+      Start Converting
+    </a>
+  </main>
+
+  <script>
+    const license = new URLSearchParams(window.location.search).get("license");
+    document.getElementById("license-key").textContent = license || "License not provided.";
+  </script>
+
+</body>
+</html>

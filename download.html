@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Download File - Cravax Convertly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen">
+
+  <header class="bg-white shadow p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="/index.html" class="text-xl font-bold text-blue-600">Cravax Convertly</a>
+      <nav class="space-x-4">
+        <a href="/upload.html" class="text-gray-700 hover:text-blue-600">Upload</a>
+        <a href="/account.html" class="text-gray-700 hover:text-blue-600">Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto text-center py-20 px-6">
+    <h1 class="text-3xl font-bold mb-6">Preparing your download...</h1>
+    <p id="status" class="text-gray-600">Authorizing file access...</p>
+  </main>
+
+  <script src="/auth.js"></script>
+  <script>
+    async function fetchDownload() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!session) {
+        document.getElementById("status").textContent = "You must be logged in to download files.";
+        setTimeout(() => window.location.href = "/login.html", 2000);
+        return;
+      }
+
+      const filename = new URLSearchParams(window.location.search).get("file");
+      if (!filename) {
+        document.getElementById("status").textContent = "No file specified.";
+        return;
+      }
+
+      const token = session.access_token;
+      const response = await fetch(`/api/download/${filename}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        document.getElementById("status").textContent = "Download started!";
+      } else {
+        const resText = await response.text();
+        document.getElementById("status").textContent = "Error: " + resText;
+      }
+    }
+
+    fetchDownload();
+  </script>
+</body>
+</html>
